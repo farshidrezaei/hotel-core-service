@@ -12,6 +12,7 @@ ENV COMPOSER_VERSION 2.1.5
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION
 
+ENV SUPERVISOR_CONF_PATH=/etc/supervisord.conf
 
 
 RUN apt-get update \
@@ -24,6 +25,9 @@ RUN apt-get update \
         libzip-dev \
         unzip \
         zip \
+        supervisor \
+        cron \
+        nano \
     && apt-get clean \
     && pecl install redis \
     && docker-php-ext-configure gd \
@@ -42,8 +46,23 @@ RUN apt-get update \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*;
 
+COPY ./docker/php/supervisord.conf $SUPERVISOR_CONF_PATH
 COPY ./docker/php/core.ini /usr/local/etc/php/conf.d/core.ini
-
-WORKDIR /usr/src/app
+RUN mkdir /var/log/supervisor
+WORKDIR /var/www/html
 
 RUN chown -R www-data:www-data .
+
+COPY ./docker/php/crontab /etc/cron.d/crontab
+
+# Give execution rights on the cron job
+RUN chmod 0644 /etc/cron.d/crontab
+
+# Apply cron job
+RUN crontab /etc/cron.d/crontab
+
+# Create the log file to be able to run tail
+RUN touch /var/log/cron.log
+
+# Run the command on container startup
+CMD cron && tail -f /var/log/cron.log

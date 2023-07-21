@@ -8,8 +8,8 @@ services:
     expose:
       - 9000
     volumes:
-      - .:/var/www/core
-      - ./public:/var/www/core/public
+      - .:/var/www/html
+      - ./public:/var/www/html/public
     networks:
       - network
 
@@ -19,14 +19,14 @@ services:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
     volumes:
-      - ./public:/var/www/core/public
+      - ./public:/var/www/html/public
     ports:
       - "8000:80"
     depends_on:
       - core
     environment:
       NGINX_FPM_HOST: core
-      NGINX_ROOT: /var/www/core/public
+      NGINX_ROOT: /var/www/html/public
     networks:
       - network
 

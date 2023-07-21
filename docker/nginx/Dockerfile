@@ -1,6 +1,6 @@
 FROM nginx:latest
 
-ENV NGINX_ROOT /var/www/core/public
+ENV NGINX_ROOT /var/www/html/public
 ENV NGINX_FPM_HOST localhost
 ENV NGINX_FPM_PORT 9000
 
