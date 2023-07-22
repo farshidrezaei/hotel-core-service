@@ -27,14 +27,15 @@ RUN apt-get update -y \
 # Install composer.
 RUN php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
 
-# Config supervisor.
-RUN mkdir -p /var/log/supervisor && mkdir -p /etc/supervisor/conf.d
+# Make supervisor log directory
+RUN mkdir -p /var/log/supervisor
 
+# Copy local supervisord.conf to the conf.d directory
+COPY --chown=root:root ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN groupadd -g $GID $GROUP
 RUN useradd -m -g $GROUP -u $UID -s /bin/sh $USER
 RUN chown -R $USER:$GROUP /var/www
 RUN usermod -u $UID $USER
 RUN groupmod -g $GID $USER
-
 

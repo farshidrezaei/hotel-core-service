@@ -40,10 +40,28 @@ services:
     volumes:
       - ./:/var/www/html
       - ./docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
-      - ./docker/php/supervisord.conf:/etc/supervisor/supervisord.conf
       - ./docker/php/core.ini:/usr/local/etc/php/conf.d/core.ini
     networks:
       - core_network
+
+  supervisor:
+    restart: always
+    build:
+      context: docker/php
+      dockerfile: Dockerfile
+      args:
+        USER: laravel
+        GROUP: laravel
+        UID: 1000
+        GID: 1000
+    container_name: ${APP_NAME}_supervisor
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - core_network
+    entrypoint: [ "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf" ]
+
 
   redis:
     container_name: ${APP_NAME}_redis
