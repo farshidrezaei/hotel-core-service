@@ -21,7 +21,7 @@ class RoomTouchedJob implements ShouldQueue
 
     public function handle(): void
     {
-        $this->room->load('vendor', 'specialProperties');
+        $this->room?->load('vendor', 'specialProperties');
         Larabbitmq::publish(
             'room_touched',
             'room_touched',
