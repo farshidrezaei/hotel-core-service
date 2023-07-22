@@ -1,18 +1,12 @@
-FROM nginx:latest
+FROM  nginx:stable-alpine
 
-ENV NGINX_ROOT /var/www/html/public
-ENV NGINX_FPM_HOST localhost
-ENV NGINX_FPM_PORT 9000
+ARG USER
+ARG GROUP
+ARG UID
+ARG GID
 
-RUN rm -f /etc/nginx/conf.d/default.conf
-RUN rm -f /etc/nginx/nginx.conf
+RUN addgroup -g ${GID} ${GROUP} \
+&& adduser -G ${GROUP} -u ${UID} ${USER} -s /bin/sh -D ${USER}
 
-COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY ./docker/nginx/fpm-template.conf /etc/nginx/fpm.tmpl
-COPY ./docker/nginx/entrypoint.sh /usr/local/bin/entrypoint.sh
-
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-EXPOSE 80
-
-ENTRYPOINT ["entrypoint.sh"]
+RUN mkdir -p /var/www/html /var/www/certbot \
+	&& chown -R ${USER}:${GROUP} /var/www/html
